@@ -6,7 +6,7 @@ const COMPANY_TH =
 const COMPANY_EN =
   "Test True Company Limited 64/1 Moo 2, Lam Toi Ting Subdistrict, Nong Chok, Bangkok 10530 Tax Registration Number 0105566123472";
 const COMPANY_CONTACT =
-  "E-Mail: testtrueservice@gmail.com , Website: www.testtrue.co.th";
+  "E-Mail: testtrueservice@gmail.com , Website: https://testtrueservice.com";
 
 // ── Palette (matches existing ReportPrintTemplate) ─────────────────────────
 const borderColor = "#5e6066";

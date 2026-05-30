@@ -1,4 +1,3 @@
-import React from "react";
 import { CHECKLIST_SECTIONS } from "../utils/config";
 
 function BuildingChecklistForm({
@@ -30,7 +29,7 @@ function BuildingChecklistForm({
     // ส่งค่าของตัว Radio Button ก่อน
     handleChange(event);
 
-    if (value === "ใช้ได้") {
+    if (value === "ใช้ได้" || value === "ไม่มี") {
       handleChange({
         target: {
           name: `remark_${item.name}`,
@@ -89,6 +88,17 @@ function BuildingChecklistForm({
                 className="h-[13px] w-[13px] cursor-pointer text-blue-600 focus:ring-blue-500"
               />
               ใช้ไม่ได้
+            </label>
+            <label className="flex cursor-pointer items-center gap-1 whitespace-nowrap text-[12px] font-medium text-slate-900 md:text-[13px]">
+              <input
+                type="radio"
+                name={item.name}
+                value="ไม่มี"
+                checked={formData[item.name] === "ไม่มี"}
+                onChange={(event) => handleStatusChange(event, item)}
+                className="h-[13px] w-[13px] cursor-pointer text-blue-600 focus:ring-blue-500"
+              />
+              ไม่มี
             </label>
           </div>
         </div>

@@ -38,12 +38,14 @@ function fmtDateTimeThai(value) {
 function getStatusColor(value) {
   if (value === "ใช้ได้") return "#1f9d55";
   if (value === "ใช้ไม่ได้") return "#d64545";
+  if (value === "ไม่มี") return "#0f0f0fff";
   return "#555";
 }
 
 function getStatusIcon(value) {
   if (value === "ใช้ได้") return "✔";
   if (value === "ใช้ไม่ได้") return "✘";
+  if (value === "ไม่มี") return "-";
   return "—";
 }
 
@@ -245,7 +247,7 @@ function renderReportFooterInfo() {
       <br />
       Test True Company Limited 64/1 Moo 2, Lam Toi Ting Subdistrict, Nong Chok, Bangkok 10530 Tax Registration Number 0105566123472
       <br />
-      E-Mail: testtrueservice@gmail.com , Website: www.testtrue.co.th
+      E-Mail: testtrueservice@gmail.com , Website: https://testtrueservice.com
     </div>
   );
 }
