@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import { useAuthSession } from "./hooks/useAuthSession";
 import LoginPage from "./pages/LoginPage";
 import ReportPage from "./pages/ReportPage";
-import InspectionReportPage from "./pages/InspectionReportPage";
-import { useAuthSession } from "./hooks/useAuthSession";
 
 function App() {
   const {
@@ -14,9 +12,6 @@ function App() {
     logout,
     clearAuthNotice,
   } = useAuthSession();
-
-  // "service" = Service Report menu, "report" = Inspection Report menu
-  const [currentPage, setCurrentPage] = useState("service");
 
   if (isAuthLoading) {
     return (
@@ -45,11 +40,7 @@ function App() {
     <ReportPage
       authState={authState}
       onLogout={logout}
-      currentPage={currentPage}
-      onNavigate={setCurrentPage}
-    >
-      {currentPage === "report" && <InspectionReportPage />}
-    </ReportPage>
+    />
   );
 }
 
