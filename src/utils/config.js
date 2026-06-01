@@ -97,7 +97,7 @@ export const FAIL_VALUE = "ใช้ไม่ได้";
 
 /** Signature role labels for both forms */
 export const SIGNATURE_LABELS = {
-  inspector: 'ผู้ตรวจสอบอาคาร<br><span style="font-size:9px;">Inspector</span>',
+  inspector: 'ผู้ตรวจสอบอาคาร / วิศวกร<br><span style="font-size:9px;">Inspector / Engineer</span>',
   owner:
     'เจ้าของอาคาร / ผู้ดูแลอาคาร<br><span style="font-size:9px;">Owner / Manager</span>',
 };

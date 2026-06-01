@@ -1,13 +1,13 @@
-import React, {
-  useState,
-  useRef,
+import {
+  forwardRef,
   useEffect,
   useImperativeHandle,
-  forwardRef,
+  useRef,
+  useState,
 } from "react";
-import ManageReportDialog from "./ManageReportDialog";
 import { CHECKLIST_SECTIONS } from "../utils/config";
 import { isValidEmail, isValidPhone } from "../utils/inputValidation";
+import ManageReportDialog from "./ManageReportDialog";
 
 const signatureActionButtonClass =
   "rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700";
@@ -730,7 +730,7 @@ export default function ReportFooter({
                 <div className="p-4">
                   <SignaturePad
                     ref={inspectorSigRef}
-                    label="ผู้ตรวจสอบอาคาร (Inspector)"
+                    label="ผู้ตรวจสอบอาคาร / วิศวกร"
                     variant="form2"
                     scrollId="signature-inspector"
                     initialSignatureData={signatures.inspector}
@@ -878,7 +878,7 @@ export default function ReportFooter({
               <div className="p-4">
                 <SignaturePad
                   ref={inspectorSigRef}
-                  label="ผู้ตรวจสอบอาคาร (Inspector)"
+                  label="ผู้ตรวจสอบอาคาร / วิศวกร"
                   scrollId="signature-inspector"
                   errorMessage={validationErrors["signature-inspector"]}
                   initialSignatureData={signatures.inspector}

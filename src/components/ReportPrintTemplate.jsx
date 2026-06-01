@@ -109,6 +109,7 @@ function renderForm1Header(sigDateStr, codeNo) {
       <div style={styles.form1TopBrandRow}>
         <img src="/img/Logo.jpg" alt="Logo" style={styles.form1Logo} />
         <div style={styles.form1QrWrap}>
+          <div style={styles.originalLabel}>ต้นฉบับ</div>
           <img src="/img/qrline.jpg" alt="QR Code" style={styles.form1QrCode} />
         </div>
       </div>
@@ -138,6 +139,7 @@ function renderDefaultHeader(sigDateStr, codeNo) {
       <div style={styles.topBrandRow}>
         <img src="/img/Logo.jpg" alt="Logo" style={styles.logo} />
         <div style={styles.qrWrap}>
+          <div style={styles.originalLabel}>ต้นฉบับ</div>
           <img src="/img/qrline.jpg" alt="QR Code" style={styles.qrCode} />
         </div>
       </div>
@@ -214,8 +216,8 @@ function renderSignatureSection(signatures, sigDateStr) {
           ) : null}
         </div>
         <div style={styles.signatureMeta}>
-          <div style={styles.signatureTitle}>ผู้ตรวจสอบอาคาร</div>
-          <div style={styles.signatureSubtitle}>Inspector</div>
+          <div style={styles.signatureTitle}>ผู้ตรวจสอบอาคาร / วิศวกร</div>
+          <div style={styles.signatureSubtitle}>Inspector / Engineer</div>
           <div style={styles.signatureDate}>วันที่ {sigDateStr}</div>
         </div>
       </div>
@@ -607,9 +609,9 @@ const styles = {
   },
   qrWrap: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
-    gap: "4px",
+    gap: "6px",
   },
   qrCode: {
     width: "54px",
@@ -619,6 +621,12 @@ const styles = {
   qrCaption: {
     fontSize: "7px",
     color: "#4b5563",
+  },
+  originalLabel: {
+    fontSize: "15px",
+    fontWeight: 700,
+    color: "#000000",
+    alignSelf: "flex-end",
   },
   form1TopBrandRow: {
     display: "flex",
@@ -634,9 +642,9 @@ const styles = {
   },
   form1QrWrap: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
-    gap: "4px",
+    gap: "6px",
   },
   form1QrCode: {
     width: "50px",
