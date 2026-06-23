@@ -114,4 +114,4 @@ export const API_URL =
  * - Dev: leave empty and let Vite proxy `/api` ไปที่ backend local
  * - Deploy: set `VITE_BACKEND_URL` เช่น https://your-api.example.com
  */
-export const BACKEND_URL = "http://3.0.18.6:8000";
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
