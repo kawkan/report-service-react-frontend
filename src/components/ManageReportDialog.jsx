@@ -343,7 +343,7 @@ export default function ManageReportDialog({
       }
 
       setSendResult({
-        type: "success",
+        type: result.details?.email?.ok === false ? "error" : "success",
         message:
           detailMessages.join(" | ") || "ส่งรายงานไปยัง backend เรียบร้อยแล้ว",
       });
