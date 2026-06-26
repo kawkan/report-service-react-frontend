@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import BuildingChecklistForm from "../components/BuildingChecklistForm";
 import BuildingInspectionGeneralInfo from "../components/BuildingInspectionGeneralInfo";
+import DocumentScanner from "../components/DocumentScanner";
 import GeneralServiceForm from "../components/GeneralServiceForm";
 import ReportFooter from "../components/ReportFooter";
 import {
@@ -56,7 +57,7 @@ function createInitialFooterDraft() {
   };
 }
 
-export default function ReportPage({ authState, onLogout }) {
+export default function ReportPage({ authState, onLogout, onOpenAdmin }) {
   const draftKeyUser = authState.user?.email || "guest";
   const [formData, setFormData] = useState(() => {
     const draft = loadReportDraft(draftKeyUser);
@@ -124,6 +125,55 @@ export default function ReportPage({ authState, onLogout }) {
       } else {
         delete nextErrors[name];
       }
+      return nextErrors;
+    });
+  };
+
+  const handleSelectProject = (project) => {
+    setFormData((prev) => ({
+      ...prev,
+      projectName: project.project_name || "",
+      address: project.address || "",
+      contactName: project.contact_name || "",
+      phone: sanitizePhoneInput(project.phone || ""),
+      email: project.email || "",
+      lineId: project.line_id || "",
+    }));
+    setValidationErrors((prev) => {
+      const nextErrors = { ...prev };
+      ["projectName", "address", "contactName", "phone", "email", "lineId"].forEach(
+        (field) => delete nextErrors[field],
+      );
+      return nextErrors;
+    });
+  };
+
+  const handleScanComplete = (fields) => {
+    const fieldMap = {
+      projectName: fields.project_name,
+      address: fields.address,
+      contactName: fields.contact,
+      phone: fields.mobile,
+      email: fields.email,
+      lineId: fields.line,
+    };
+
+    setFormData((prev) => {
+      const next = { ...prev };
+      Object.entries(fieldMap).forEach(([key, value]) => {
+        const cleanValue = key === "phone" ? sanitizePhoneInput(value || "") : value || "";
+        if (cleanValue) {
+          next[key] = cleanValue;
+        }
+      });
+      return next;
+    });
+
+    setValidationErrors((prev) => {
+      const nextErrors = { ...prev };
+      Object.entries(fieldMap).forEach(([key, value]) => {
+        if (value) delete nextErrors[key];
+      });
       return nextErrors;
     });
   };
@@ -228,7 +278,11 @@ export default function ReportPage({ authState, onLogout }) {
 
         {/* Menu Navigation Box */}
         <div className="rounded-2xl border border-slate-300 bg-white px-4 py-4 shadow-sm sm:px-6">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div
+            className={`grid grid-cols-1 gap-3 ${
+              authState.user?.role === "admin" ? "sm:grid-cols-3" : "sm:grid-cols-2"
+            }`}
+          >
             <button
               type="button"
               disabled
@@ -243,6 +297,15 @@ export default function ReportPage({ authState, onLogout }) {
             >
               Service Report
             </button>
+            {authState.user?.role === "admin" && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="h-12 w-full animate-pulse rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 text-[15px] font-bold text-white shadow-lg shadow-fuchsia-200 ring-2 ring-fuchsia-300 ring-offset-1 transition hover:animate-none hover:scale-[1.02]"
+              >
+                ⚙ จัดการระบบ Admin
+              </button>
+            )}
           </div>
         </div>
 
@@ -261,6 +324,11 @@ export default function ReportPage({ authState, onLogout }) {
             <option value="form2">1.2 แบบงานบริการทั่วไป</option>
           </select>
         </div>
+
+        <DocumentScanner
+          authToken={authState.token}
+          onScanComplete={handleScanComplete}
+        />
       </header>
 
       <main className="print:hidden">
@@ -270,12 +338,16 @@ export default function ReportPage({ authState, onLogout }) {
                 formData={formData}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
+                authToken={authState.token}
+                onSelectProject={handleSelectProject}
                 validationErrors={validationErrors}
               />
               <BuildingChecklistForm
                 formData={formData}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
+                authToken={authState.token}
+                onSelectProject={handleSelectProject}
                 validationErrors={validationErrors}
               />
               <div className="mt-6">
@@ -298,6 +370,8 @@ export default function ReportPage({ authState, onLogout }) {
                 formData={formData}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
+                authToken={authState.token}
+                onSelectProject={handleSelectProject}
                 validationErrors={validationErrors}
               />
               <ReportFooter

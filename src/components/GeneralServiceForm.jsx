@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ProjectAutocomplete from "./ProjectAutocomplete";
 
 const workTypeOptions = [
   "ระบบไฟฟ้า",
@@ -207,6 +208,8 @@ export default function GeneralServiceForm({
   formData,
   handleChange,
   handleBlur,
+  authToken,
+  onSelectProject,
   validationErrors = {},
 }) {
   const getInputClassName = (fieldName) =>
@@ -301,12 +304,12 @@ export default function GeneralServiceForm({
 
           <div className="md:col-span-2">
             <Field label="ชื่อโครงการ" englishLabel="Project Name" required>
-              <input
-                type="text"
-                name="projectName"
+              <ProjectAutocomplete
+                authToken={authToken}
                 value={formData.projectName}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                onSelectProject={onSelectProject}
                 className={getInputClassName("projectName")}
               />
               {validationErrors.projectName && (

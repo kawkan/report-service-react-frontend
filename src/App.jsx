@@ -1,8 +1,13 @@
+import { useEffect, useState } from "react";
 import { useAuthSession } from "./hooks/useAuthSession";
 import LoginPage from "./pages/LoginPage";
 import ReportPage from "./pages/ReportPage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
+  const [currentPage, setCurrentPage] = useState(() =>
+    window.location.hash === "#admin" ? "admin" : "report",
+  );
   const {
     authState,
     isAuthLoading,
@@ -12,6 +17,14 @@ function App() {
     logout,
     clearAuthNotice,
   } = useAuthSession();
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentPage(window.location.hash === "#admin" ? "admin" : "report");
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   if (isAuthLoading) {
     return (
@@ -36,10 +49,26 @@ function App() {
     );
   }
 
+  const openPage = (page) => {
+    window.location.hash = page === "admin" ? "admin" : "";
+    setCurrentPage(page);
+  };
+
+  if (currentPage === "admin" && authState.user?.role === "admin") {
+    return (
+      <AdminPage
+        authState={authState}
+        onBack={() => openPage("report")}
+        onLogout={logout}
+      />
+    );
+  }
+
   return (
     <ReportPage
       authState={authState}
       onLogout={logout}
+      onOpenAdmin={() => openPage("admin")}
     />
   );
 }

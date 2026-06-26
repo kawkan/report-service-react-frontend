@@ -33,7 +33,7 @@ export function useAuthSession() {
         });
 
         if (!response.ok) {
-          throw new Error("Session expired");
+          throw new Error("Login required");
         }
 
         const result = await response.json();
@@ -44,7 +44,7 @@ export function useAuthSession() {
       } catch {
         window.localStorage.removeItem(AUTH_STORAGE_KEY);
         setAuthState({ token: "", user: null });
-        setAuthNotice("Session หมดอายุ กรุณาเข้าสู่ระบบใหม่");
+        setAuthNotice("กรุณาเข้าสู่ระบบใหม่");
       } finally {
         setIsAuthLoading(false);
       }

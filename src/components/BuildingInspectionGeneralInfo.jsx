@@ -1,4 +1,5 @@
 import React from "react";
+import ProjectAutocomplete from "./ProjectAutocomplete";
 
 const inspectionTypes = [
   "ตรวจสอบอาคาร",
@@ -21,6 +22,8 @@ export default function BuildingInspectionGeneralInfo({
   formData,
   handleChange,
   handleBlur,
+  authToken,
+  onSelectProject,
   validationErrors = {},
 }) {
   const getInputClassName = (fieldName) =>
@@ -63,12 +66,12 @@ export default function BuildingInspectionGeneralInfo({
           <label className="mb-2 block text-[15px] font-semibold text-slate-900">
             ชื่อโครงการ (Project Name) <span className="text-red-600">*</span>
           </label>
-          <input
-            type="text"
-            name="projectName"
+          <ProjectAutocomplete
+            authToken={authToken}
             value={formData.projectName}
             onChange={handleChange}
             onBlur={handleBlur}
+            onSelectProject={onSelectProject}
             className={getInputClassName("projectName")}
           />
           {validationErrors.projectName && (
