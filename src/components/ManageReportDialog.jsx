@@ -86,11 +86,25 @@ export default function ManageReportDialog({
     }
 
     setIsPrinting(true);
+    const isMobile = isMobilePrintBrowser();
+    let mobilePrintWindow = null;
+
     try {
+      if (isMobile) {
+        mobilePrintWindow = window.open("", "_blank");
+        if (!mobilePrintWindow) {
+          throw new Error("มือถือบล็อกหน้าพิมพ์ กรุณาเปิด popup หรือเปิดเว็บใน Safari/Chrome");
+        }
+        writePreparingHtml(mobilePrintWindow);
+      }
+
       const printableHtml = await buildPrintableHtml();
 
-      if (isMobilePrintBrowser()) {
-        await printHtmlInHiddenFrame(printableHtml);
+      if (isMobile) {
+        mobilePrintWindow.document.open();
+        mobilePrintWindow.document.write(buildMobilePrintPreviewHtml(printableHtml));
+        mobilePrintWindow.document.close();
+        mobilePrintWindow.focus();
         return;
       }
 
@@ -99,29 +113,7 @@ export default function ManageReportDialog({
         throw new Error("เบราว์เซอร์บล็อกหน้าพิมพ์ กรุณาอนุญาต popup ก่อน");
       }
 
-      printWindow.document.open();
-      printWindow.document.write(`<!DOCTYPE html>
-<html lang="th">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Preparing Report</title>
-    <style>
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: Arial, sans-serif;
-        color: #334155;
-        background: #f8fafc;
-      }
-    </style>
-  </head>
-  <body>กำลังเตรียมเอกสาร...</body>
-</html>`);
-      printWindow.document.close();
+      writePreparingHtml(printWindow);
 
       printWindow.document.open();
       printWindow.document.write(printableHtml);
@@ -229,51 +221,140 @@ export default function ManageReportDialog({
     );
   };
 
-  const printHtmlInHiddenFrame = (html) =>
-    new Promise((resolve, reject) => {
-      const iframe = document.createElement("iframe");
+  const writePreparingHtml = (targetWindow) => {
+    targetWindow.document.open();
+    targetWindow.document.write(`<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preparing Report</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        color: #334155;
+        background: #f8fafc;
+      }
+    </style>
+  </head>
+  <body>กำลังเตรียมเอกสาร...</body>
+</html>`);
+    targetWindow.document.close();
+  };
 
-      const cleanup = () => {
-        window.setTimeout(() => iframe.remove(), 3000);
-      };
+  const buildMobilePrintPreviewHtml = (printableHtml) => {
+    const styleMatch = printableHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+    const bodyMatch = printableHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    const reportStyles = styleMatch?.[1] || "";
+    const reportBody = bodyMatch?.[1] || printableHtml;
 
-      iframe.title = "Service Report PDF";
-      iframe.style.position = "fixed";
-      iframe.style.right = "0";
-      iframe.style.bottom = "0";
-      iframe.style.width = "1px";
-      iframe.style.height = "1px";
-      iframe.style.border = "0";
-      iframe.style.opacity = "0";
-      iframe.style.pointerEvents = "none";
+    return `<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Service Report PDF</title>
+    <style>
+      ${reportStyles}
 
-      iframe.onload = () => {
-        window.setTimeout(() => {
-          try {
-            const frameWindow = iframe.contentWindow;
-            if (!frameWindow) {
-              throw new Error("ไม่สามารถเปิดหน้าพิมพ์บนมือถือได้");
-            }
+      @media screen {
+        html,
+        body {
+          width: auto !important;
+          min-height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #e2e8f0 !important;
+          font-family: Arial, sans-serif;
+        }
 
-            frameWindow.focus();
-            frameWindow.print();
-            resolve();
-            cleanup();
-          } catch (error) {
-            reject(error);
-            cleanup();
-          }
-        }, 500);
-      };
+        body {
+          padding: 88px 10px 24px !important;
+          overflow-x: auto;
+        }
 
-      iframe.onerror = () => {
-        reject(new Error("ไม่สามารถเตรียม PDF บนมือถือได้"));
-        cleanup();
-      };
+        .mobile-print-toolbar {
+          position: fixed;
+          z-index: 9999;
+          top: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          justify-content: center;
+          padding: 12px;
+          padding-top: calc(12px + env(safe-area-inset-top));
+          background: rgba(248, 250, 252, 0.96);
+          box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+          backdrop-filter: blur(10px);
+        }
 
-      document.body.appendChild(iframe);
-      iframe.srcdoc = html;
-    });
+        .mobile-print-toolbar button {
+          border: 0;
+          border-radius: 12px;
+          padding: 12px 14px;
+          font-size: 15px;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .mobile-print-button {
+          background: #2563eb;
+          flex: 1;
+          max-width: 220px;
+        }
+
+        .mobile-close-button {
+          background: #64748b;
+        }
+
+        .mobile-print-page {
+          width: 210mm;
+          max-width: 100%;
+          margin: 0 auto;
+          background: #fff;
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+          overflow: hidden;
+        }
+      }
+
+      @media print {
+        .mobile-print-toolbar {
+          display: none !important;
+        }
+
+        html,
+        body {
+          width: 210mm !important;
+          min-height: 297mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #fff !important;
+        }
+
+        .mobile-print-page {
+          width: 210mm !important;
+          margin: 0 !important;
+          box-shadow: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mobile-print-toolbar">
+      <button class="mobile-print-button" type="button" onclick="window.print()">บันทึกเป็น PDF</button>
+      <button class="mobile-close-button" type="button" onclick="window.close()">ปิด</button>
+    </div>
+    <main class="mobile-print-page">${reportBody}</main>
+  </body>
+</html>`;
+  };
 
   const buildPrintableHtml = async () => {
     if (!printRef.current) {
