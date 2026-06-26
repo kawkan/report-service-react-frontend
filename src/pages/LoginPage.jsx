@@ -56,7 +56,7 @@ export default function LoginPage({
                   Service Report
                 </p>
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                  ระบบรายงานงานบริการ
+                  ระบบรายงานการบริการ
                 </h1>
               </div>
             </div>
