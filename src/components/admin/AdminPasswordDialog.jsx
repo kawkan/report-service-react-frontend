@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PasswordInput from "./PasswordInput";
 
 export default function AdminPasswordDialog({
   user,
@@ -74,8 +75,7 @@ export default function AdminPasswordDialog({
             <label className="mb-2 block text-sm font-semibold text-slate-700">
               รหัสผ่านใหม่
             </label>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
@@ -89,8 +89,7 @@ export default function AdminPasswordDialog({
             <label className="mb-2 block text-sm font-semibold text-slate-700">
               ยืนยันรหัสผ่านใหม่
             </label>
-            <input
-              type="password"
+            <PasswordInput
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"

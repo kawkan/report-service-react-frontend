@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PasswordInput from "./PasswordInput";
 
 const emptyForm = {
   email: "",
@@ -108,9 +109,8 @@ export default function AdminUserForm({
           <label className="mb-2 block text-sm font-semibold text-slate-700">
             {isEditing ? "รหัสผ่านใหม่ (ไม่บังคับ)" : "รหัสผ่าน"}
           </label>
-          <input
+          <PasswordInput
             className={inputClass}
-            type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
