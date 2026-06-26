@@ -48,6 +48,7 @@ export default function ManageReportDialog({
   const [emailInput, setEmailInput] = useState("");
   const [printReady, setPrintReady] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const [sendResult, setSendResult] = useState(null);
   const printRef = useRef();
 
@@ -84,7 +85,15 @@ export default function ManageReportDialog({
       return;
     }
 
+    setIsPrinting(true);
     try {
+      const printableHtml = await buildPrintableHtml();
+
+      if (isMobilePrintBrowser()) {
+        await printHtmlInHiddenFrame(printableHtml);
+        return;
+      }
+
       const printWindow = window.open("", "_blank");
       if (!printWindow) {
         throw new Error("เบราว์เซอร์บล็อกหน้าพิมพ์ กรุณาอนุญาต popup ก่อน");
@@ -114,8 +123,6 @@ export default function ManageReportDialog({
 </html>`);
       printWindow.document.close();
 
-      const printableHtml = await buildPrintableHtml();
-
       printWindow.document.open();
       printWindow.document.write(printableHtml);
       printWindow.document.close();
@@ -128,6 +135,8 @@ export default function ManageReportDialog({
       }, 350);
     } catch (err) {
       alert("เกิดข้อผิดพลาดในการพิมพ์: " + err.message);
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -201,12 +210,77 @@ export default function ManageReportDialog({
     );
   };
 
+  const waitForFonts = async () => {
+    if (!document.fonts?.ready) {
+      return;
+    }
+
+    await Promise.race([
+      document.fonts.ready,
+      new Promise((resolve) => window.setTimeout(resolve, 3000)),
+    ]);
+  };
+
+  const isMobilePrintBrowser = () => {
+    const userAgent = navigator.userAgent || "";
+    return (
+      /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent) ||
+      (navigator.maxTouchPoints > 1 && /Macintosh/i.test(userAgent))
+    );
+  };
+
+  const printHtmlInHiddenFrame = (html) =>
+    new Promise((resolve, reject) => {
+      const iframe = document.createElement("iframe");
+
+      const cleanup = () => {
+        window.setTimeout(() => iframe.remove(), 3000);
+      };
+
+      iframe.title = "Service Report PDF";
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "1px";
+      iframe.style.height = "1px";
+      iframe.style.border = "0";
+      iframe.style.opacity = "0";
+      iframe.style.pointerEvents = "none";
+
+      iframe.onload = () => {
+        window.setTimeout(() => {
+          try {
+            const frameWindow = iframe.contentWindow;
+            if (!frameWindow) {
+              throw new Error("ไม่สามารถเปิดหน้าพิมพ์บนมือถือได้");
+            }
+
+            frameWindow.focus();
+            frameWindow.print();
+            resolve();
+            cleanup();
+          } catch (error) {
+            reject(error);
+            cleanup();
+          }
+        }, 500);
+      };
+
+      iframe.onerror = () => {
+        reject(new Error("ไม่สามารถเตรียม PDF บนมือถือได้"));
+        cleanup();
+      };
+
+      document.body.appendChild(iframe);
+      iframe.srcdoc = html;
+    });
+
   const buildPrintableHtml = async () => {
     if (!printRef.current) {
       throw new Error("รูปแบบรายงานยังไม่พร้อม");
     }
 
-    await document.fonts.ready;
+    await waitForFonts();
 
     const printableNode = printRef.current.cloneNode(true);
     await embedImagesAsDataUrl(printableNode);
@@ -523,9 +597,10 @@ export default function ManageReportDialog({
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <button
               onClick={onPrintClick}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-600 px-6 py-2 font-medium text-white transition-colors hover:bg-slate-700 sm:w-auto"
+              disabled={isPrinting || !printReady}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-600 px-6 py-2 font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
-              <i className="fas fa-print"></i> พิมพ์รายงาน (PDF)
+              <i className="fas fa-print"></i> {isPrinting ? "กำลังเตรียม PDF..." : "พิมพ์รายงาน (PDF)"}
             </button>
             <button
               onClick={handleReset}
