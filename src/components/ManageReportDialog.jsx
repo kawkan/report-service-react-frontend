@@ -307,7 +307,10 @@ export default function ManageReportDialog({
     setIsSending(true);
     setSendResult(null);
 
+    let timeoutId;
     try {
+      const controller = new AbortController();
+      timeoutId = window.setTimeout(() => controller.abort(), 120000);
       const response = await fetch(`${BACKEND_URL}/api/submit-report`, {
         method: "POST",
         headers: {
@@ -315,7 +318,10 @@ export default function ManageReportDialog({
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(await buildPayload()),
+        signal: controller.signal,
       });
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
 
       const result = await response.json();
 
@@ -350,9 +356,13 @@ export default function ManageReportDialog({
     } catch (error) {
       setSendResult({
         type: "error",
-        message: error.message || "เกิดข้อผิดพลาดในการส่งรายงาน",
+        message:
+          error.name === "AbortError"
+            ? "ส่งรายงานไม่สำเร็จ: backend ใช้เวลานานเกินไป กรุณาลองใหม่หรือเช็ก Render Logs"
+            : error.message || "เกิดข้อผิดพลาดในการส่งรายงาน",
       });
     } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
       setIsSending(false);
     }
   };
