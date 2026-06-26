@@ -278,11 +278,7 @@ export default function ReportPage({ authState, onLogout, onOpenAdmin }) {
 
         {/* Menu Navigation Box */}
         <div className="rounded-2xl border border-slate-300 bg-white px-4 py-4 shadow-sm sm:px-6">
-          <div
-            className={`grid grid-cols-1 gap-3 ${
-              authState.user?.role === "admin" ? "sm:grid-cols-3" : "sm:grid-cols-2"
-            }`}
-          >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <button
               type="button"
               disabled
@@ -297,15 +293,13 @@ export default function ReportPage({ authState, onLogout, onOpenAdmin }) {
             >
               Service Report
             </button>
-            {authState.user?.role === "admin" && (
-              <button
-                type="button"
-                onClick={onOpenAdmin}
-                className="h-12 w-full animate-pulse rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 text-[15px] font-bold text-white shadow-lg shadow-fuchsia-200 ring-2 ring-fuchsia-300 ring-offset-1 transition hover:animate-none hover:scale-[1.02]"
-              >
-                ⚙ จัดการระบบ Admin
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="h-12 w-full animate-pulse rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 text-[15px] font-bold text-white shadow-lg shadow-fuchsia-200 ring-2 ring-fuchsia-300 ring-offset-1 transition hover:animate-none hover:scale-[1.02]"
+            >
+              ⚙ จัดการระบบ Admin
+            </button>
           </div>
         </div>
 

@@ -54,7 +54,7 @@ function App() {
     setCurrentPage(page);
   };
 
-  if (currentPage === "admin" && authState.user?.role === "admin") {
+  if (currentPage === "admin") {
     return (
       <AdminPage
         authState={authState}
